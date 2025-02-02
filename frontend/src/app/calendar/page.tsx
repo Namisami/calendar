@@ -2,6 +2,7 @@
 
 import { Box, Button, FormControl, InputLabel, MenuItem, Select, Stack, Typography } from "@mui/material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import Link from "next/link";
 
 const columns: GridColDef<(typeof rows)[number]>[] = [
   { 
@@ -66,9 +67,15 @@ export default function MainPage() {
                 <MenuItem value={2}>Тест3</MenuItem>
               </Select>
             </FormControl>
-            <Button variant="contained" sx={{ height: "100%" }} size="medium">
-              Новое мероприятие
-            </Button>
+            <Link href="/calendar/new" style={{ height: '100%' }}>
+              <Button 
+                variant="contained" 
+                size="medium"
+                sx={{ height: "100%" }}
+              >
+                Новое мероприятие
+              </Button>
+            </Link>
           </Stack>
         </Stack>
         <DataGrid 

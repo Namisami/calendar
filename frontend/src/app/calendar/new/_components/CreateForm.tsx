@@ -85,9 +85,9 @@ export default function CreateForm() {
             )}
           />
         </Stack>
-        <Button type="submit">Создать</Button>
+        <Button type="submit" variant="contained">Создать</Button>
         <Link href="/calendar">
-          <Button>Отменить</Button>
+          <Button fullWidth color="error" variant="contained">Отменить</Button>
         </Link>
       </Stack>
     </FormProvider>

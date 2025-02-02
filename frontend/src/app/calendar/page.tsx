@@ -1,74 +1,34 @@
 "use client"
 
-import { Box, Button, FormControl, InputLabel, MenuItem, Select, Stack, Typography } from "@mui/material";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { useGetUsersQuery } from "@/api/base";
+import Select from "@/components/Select";
+import { Box, Button, FormControl, Stack, Typography } from "@mui/material";
+import { DataGrid } from "@mui/x-data-grid";
 import Link from "next/link";
+import { useMemo } from "react";
+import { CalendarRow, columns } from "./grid";
 
-const columns: GridColDef<(typeof rows)[number]>[] = [
-  { 
-    field: 'time', 
-    headerName: 'Время', 
-  },
-  {
-    field: 'monday',
-    headerName: 'Понедельник',
-    sortable: false,
-    flex: 1,
-  },
-  {
-    field: 'tuesday',
-    headerName: 'Вторник',
-    sortable: false,
-    flex: 1,
-  },
-  {
-    field: 'wednesday',
-    headerName: 'Среда',
-    sortable: false,
-    flex: 1,
-  },
-  {
-    field: 'thursday',
-    headerName: 'Четверг',
-    sortable: false,
-    flex: 1,
-  },
-  {
-    field: 'friday',
-    headerName: 'Пятница',
-    sortable: false,
-    flex: 1,
-  },
-];
-
-const rows = [
+const rows: CalendarRow[] = [
   { id: 1, time: '10:00', monday: 'СВО', tuesday: null },
 ];
 
 export default function MainPage() {
+  const { data } = useGetUsersQuery();
+
+  const usersOptions = useMemo(() => data?.map((item) => item.username) ?? [], [data])
+
   return (
     <Box height="100%" mx={2}>
       <Stack direction="column" height="100%" gap={1}>
         <Stack direction="row" justifyContent="space-between" mt={1}>
           <Typography variant="h1">Календарь</Typography>
-          <Stack direction="row" gap={2} alignItems="center">
-            <FormControl>
-              <InputLabel id="select-users-label">Пользователь</InputLabel>
-              <Select
-                labelId="select-users-label"
-                id="select-users"
-                value={1}
-                label="Пользователь"
-                size="medium"
-                sx={{ width: "240px" }}
-              >
-                <MenuItem value={0}>Тест1</MenuItem>
-                <MenuItem value={1}>Тест2</MenuItem>
-                <MenuItem value={2}>Тест3</MenuItem>
-              </Select>
+          <Stack direction="row" gap={2} alignItems="center" width="40%">
+            <FormControl sx={{ flex: 1 }}>
+              <Select options={usersOptions} />
             </FormControl>
-            <Link href="/calendar/new" style={{ height: '100%' }}>
+            <Link href="/calendar/new" style={{ height: '100%', flex: 1 }}>
               <Button 
+                fullWidth
                 variant="contained" 
                 size="medium"
                 sx={{ height: "100%" }}

@@ -1,21 +1,30 @@
 "use client"
 
-import { useGetUsersQuery } from "@/api/base";
+import { useLazyGetTasksByUsernameQuery, useGetUsersQuery } from "@/api/base";
 import Select from "@/components/Select";
 import { Box, Button, FormControl, Stack, Typography } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import Link from "next/link";
-import { useMemo } from "react";
-import { CalendarRow, columns } from "./grid";
-
-const rows: CalendarRow[] = [
-  { id: 1, time: '10:00', monday: 'СВО', tuesday: null },
-];
+import { useMemo, useState } from "react";
+import { columns } from "./grid";
+import { CalendarRow } from "@/api/base.types";
 
 export default function MainPage() {
-  const { data } = useGetUsersQuery();
+  const { data, isLoading: isUsersLoading } = useGetUsersQuery();
+  const [fetchTasks, {isLoading} ] = useLazyGetTasksByUsernameQuery();
+
+  const [tasks, setTasks] = useState<CalendarRow[]>([]);
 
   const usersOptions = useMemo(() => data?.map((item) => item.username) ?? [], [data])
+
+  const handleSelectChange = async (e: React.SyntheticEvent, value: string | null) => {
+    if (value) {
+      const { data } = await fetchTasks({ username: value });
+      setTasks(data ?? []);
+    } else {
+      setTasks([]);
+    }
+  };
 
   return (
     <Box height="100%" mx={2}>
@@ -24,7 +33,7 @@ export default function MainPage() {
           <Typography variant="h1">Календарь</Typography>
           <Stack direction="row" gap={2} alignItems="center" width="40%">
             <FormControl sx={{ flex: 1 }}>
-              <Select options={usersOptions} />
+              <Select loading={isUsersLoading} options={usersOptions} onChange={handleSelectChange} />
             </FormControl>
             <Link href="/calendar/new" style={{ height: '100%', flex: 1 }}>
               <Button 
@@ -39,7 +48,8 @@ export default function MainPage() {
           </Stack>
         </Stack>
         <DataGrid 
-          rows={rows}
+          loading={isLoading}
+          rows={tasks}
           columns={columns}
           initialState={{
             pagination: {

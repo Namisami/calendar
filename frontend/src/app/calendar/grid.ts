@@ -1,14 +1,5 @@
+import { CalendarRow } from "@/api/base.types";
 import { GridColDef } from "@mui/x-data-grid";
-
-export type CalendarRow = {
-  id: number;
-  time: string;
-  monday?: string | null;
-  tuesday?: string | null;
-  wednesday?: string | null;
-  thursday?: string | null;
-  friday?: string | null;
-}
 
 export const columns: GridColDef<CalendarRow>[] = [
   { 

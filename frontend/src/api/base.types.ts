@@ -3,10 +3,12 @@ export type User = {
   username: string;
 }
 
-export type Task = {
-  url: string;
+export type CalendarRow = {
   id: number;
-  title: string;
-  day: number;
-  user_id: string[];
+  time: string;
+  monday?: string | null;
+  tuesday?: string | null;
+  wednesday?: string | null;
+  thursday?: string | null;
+  friday?: string | null;
 }

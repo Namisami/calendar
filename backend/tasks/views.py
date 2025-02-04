@@ -1,5 +1,6 @@
 from rest_framework import viewsets, response
 from rest_framework.decorators import action
+from django.contrib.auth.models import User
 from .models import TaskModel
 from .serializers import TaskSerializer
 
@@ -22,6 +23,31 @@ class TaskViewSet(viewsets.ModelViewSet):
         if username:
             queryset = queryset.filter(user_id__username=username)
         return queryset.order_by('time')
+    
+    def create(self, request, *args, **kwargs):
+        print(request)
+        try:
+            time = request.data['time']
+            day = request.data['day']
+            title = request.data['title']
+            usernames = request.data['participiants']
+
+            try:
+                users = []
+                for username in usernames:
+                    user = User.objects.get(username=username)
+                    tasks = TaskModel.objects.filter(time=time, day=day, user_id=user)
+                    if len(tasks) != 0:
+                        return response.Response(data=f"У пользователя {username} уже занят этот слот")
+                    users.append(user)
+                task = TaskModel.objects.create(day=day, title=title, time=time)
+                task.user_id.set(users)
+                return response.Response(data="Успешно создан", status=201)
+            except Exception as e:
+                return response.Response(data=e, status=500)
+
+        except Exception as e:
+            return response.Response(data=f"Не хватает поля: {e}", status=400)
 
     @action(methods=["get"], detail=False)
     def schedule(self, request, *args, **kwargs):

@@ -4,11 +4,12 @@ import Controller from "@/components/Controller";
 import CustomAutocomplete from "@/components/CustomAutocomplete";
 import FormProvider from "@/components/FormProvider";
 import useForm from "@/hooks/useForm";
-import { Button, FormLabel, Stack, styled, TextField } from "@mui/material";
+import { Button, FormLabel, Skeleton, Stack, styled, TextField } from "@mui/material";
 import Link from "next/link";
-import React from "react";
+import React, { FormEvent, useMemo } from "react";
 import { defaultValues, FormValues } from "./form";
 import Select from "@/components/Select";
+import { useCreateTaskMutation, useGetUsersQuery } from "@/api/base";
 
 const timeOptions = [
   "10:00",
@@ -31,10 +32,24 @@ const dayOptions = [
 ]
 
 export default function CreateForm() {
+  const [createTask] = useCreateTaskMutation();
+  const { data: users, isLoading } = useGetUsersQuery();
+
+  const usersOptions = useMemo(() => users?.map((user) => user.username) ?? [], [users]);
+
   const form = useForm<FormValues>({defaultValues});
 
+  const submitHandler = async (e: FormEvent<HTMLFormElement>, state: FormValues) => {
+    e.preventDefault();
+    const { day } = state;
+    if (day === null) return;
+    await createTask({...state, day});
+  }
+
+  if (isLoading) return <Skeleton />
+
   return (
-    <FormProvider {...form}>
+    <FormProvider onSubmit={submitHandler} {...form}>
       <Stack direction="column" gap={1}>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mt={1}>
           <FormLabelFlex>Название</FormLabelFlex>
@@ -54,7 +69,7 @@ export default function CreateForm() {
             render={({ onChange }) => (
               <AutocompleteFlex 
                 onChange={(_, value) => onChange(value)} 
-                options={["2", "3"]} 
+                options={usersOptions} 
               />
             )}
           />
@@ -66,7 +81,7 @@ export default function CreateForm() {
             name="day"
             render={({ onChange }) => (
               <SelectFlex
-                onChange={(_, value) => onChange(value)} 
+                onChange={(_, value) => onChange(value ? dayOptions.indexOf(value) : null)} 
                 options={dayOptions} 
               />
             )}

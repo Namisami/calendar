@@ -12,3 +12,10 @@ export type CalendarRow = {
   thursday?: string | null;
   friday?: string | null;
 }
+
+export type TaskRequest = {
+  title: string;
+  day: number;
+  time: string;
+  participiants: string[];
+}

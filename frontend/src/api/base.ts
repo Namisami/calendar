@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { CalendarRow, User } from "./base.types";
+import { CalendarRow, TaskRequest, User } from "./base.types";
 
 export const baseApi = createApi({
   reducerPath: 'calendarApi',
@@ -8,11 +8,20 @@ export const baseApi = createApi({
     getUsers: builder.query<User[], void>({
       query: () => 'users/'
     }),
+
     getTasksByUsername: builder.query<CalendarRow[], { username: string }>({
       query: (params) => ({
         url: 'tasks/schedule/',
         params,
       })
+    }),
+
+    createTask: builder.mutation<void, TaskRequest>({
+      query: (params) => ({
+        url: 'tasks/',
+        method: 'POST',
+        body: params,
+      }),
     })
   })
 })
@@ -20,4 +29,5 @@ export const baseApi = createApi({
 export const {
   useGetUsersQuery,
   useLazyGetTasksByUsernameQuery,
+  useCreateTaskMutation,
 } = baseApi;

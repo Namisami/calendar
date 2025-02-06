@@ -1,4 +1,5 @@
 from rest_framework import viewsets, response
+from rest_framework.exceptions import ParseError
 from rest_framework.decorators import action
 from django.contrib.auth.models import User
 from .models import TaskModel
@@ -32,16 +33,22 @@ class TaskViewSet(viewsets.ModelViewSet):
             title = request.data['title']
             usernames = request.data['participiants']
 
+            if (title == ""): return response.Response("Обязательное поле: 'Название'", status=400)
+            if (len(usernames) == 0): return response.Response("Обязательное поле: 'Участники'", status=400)
+            if (day is None): return response.Response("Обязательное поле: 'День недели'", status=400)
+            if (time == ""): return response.Response("Обязательное поле: 'Время мероприятия'", status=400)
+
             try:
                 users = []
                 for username in usernames:
                     user = User.objects.get(username=username)
                     tasks = TaskModel.objects.filter(time=time, day=day, user_id=user)
                     if len(tasks) != 0:
-                        return response.Response(data=f"У пользователя {username} уже занят этот слот")
+                        return response.Response(data=f"У пользователя {username} уже занят этот слот", status=400)
                     users.append(user)
                 task = TaskModel.objects.create(day=day, title=title, time=time)
                 task.user_id.set(users)
+
                 return response.Response(data="Успешно создан", status=201)
             except Exception as e:
                 return response.Response(data=e, status=500)

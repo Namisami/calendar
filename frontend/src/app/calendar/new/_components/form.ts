@@ -1,13 +1,13 @@
 export type FormValues = {
   title: string;
   participiants: string[];
-  day: number | null;
+  day: number;
   time: string;
 }
 
 export const defaultValues: FormValues = {
   title: "",
   participiants: [],
-  day: null,
+  day: -1,
   time: "",
 };

@@ -4,12 +4,13 @@ import Controller from "@/components/Controller";
 import CustomAutocomplete from "@/components/CustomAutocomplete";
 import FormProvider from "@/components/FormProvider";
 import useForm from "@/hooks/useForm";
-import { Button, FormLabel, Skeleton, Stack, styled, TextField } from "@mui/material";
+import { Alert, Button, FormLabel, Skeleton, Stack, styled, TextField } from "@mui/material";
 import Link from "next/link";
-import React, { FormEvent, useMemo } from "react";
+import React, { FormEvent, useMemo, useState } from "react";
 import { defaultValues, FormValues } from "./form";
 import Select from "@/components/Select";
 import { useCreateTaskMutation, useGetUsersQuery } from "@/api/base";
+import { TaskRequest } from "@/api/base.types";
 
 const timeOptions = [
   "10:00",
@@ -32,6 +33,8 @@ const dayOptions = [
 ]
 
 export default function CreateForm() {
+  const [error, setError] = useState<string | null>(null);
+
   const [createTask] = useCreateTaskMutation();
   const { data: users, isLoading } = useGetUsersQuery();
 
@@ -41,23 +44,24 @@ export default function CreateForm() {
 
   const submitHandler = async (e: FormEvent<HTMLFormElement>, state: FormValues) => {
     e.preventDefault();
-    const { day } = state;
-    if (day === null) return;
-    await createTask({...state, day});
+    const {error} = await createTask({...state} as TaskRequest);
+    if (error && 'data' in error) setError(error.data as string);
+    else setError(null);
   }
 
   if (isLoading) return <Skeleton />
 
   return (
     <FormProvider onSubmit={submitHandler} {...form}>
+      {error && <Alert severity="error">{error}</Alert>}
       <Stack direction="column" gap={1}>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mt={1}>
           <FormLabelFlex>Название</FormLabelFlex>
           <Controller
             {...form}
             name="title"
-            render={({ onChange }) => (
-              <TextFieldFlex onChange={onChange} />
+            render={({ value, onChange }) => (
+              <TextFieldFlex value={value} onChange={onChange} />
             )}
           />
         </Stack>
@@ -66,8 +70,9 @@ export default function CreateForm() {
           <Controller
             {...form}
             name="participiants"
-            render={({ onChange }) => (
-              <AutocompleteFlex 
+            render={({ value, onChange }) => (
+              <AutocompleteFlex
+                value={value} 
                 onChange={(_, value) => onChange(value)} 
                 options={usersOptions} 
               />
@@ -79,10 +84,11 @@ export default function CreateForm() {
           <Controller
             {...form}
             name="day"
-            render={({ onChange }) => (
+            render={({ value, onChange }) => (
               <SelectFlex
-                onChange={(_, value) => onChange(value ? dayOptions.indexOf(value) : null)} 
-                options={dayOptions} 
+                value={value === -1 ? "" : dayOptions[value]}
+                onChange={(_, value) => onChange(value ? dayOptions.indexOf(value) : -1)} 
+                options={dayOptions}
               />
             )}
           />
@@ -92,8 +98,9 @@ export default function CreateForm() {
           <Controller
             {...form}
             name="time"
-            render={({ onChange }) => (
+            render={({ value, onChange }) => (
               <SelectFlex
+                value={value}
                 onChange={(_, value) => onChange(value)} 
                 options={timeOptions} 
               />

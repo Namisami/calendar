@@ -19,3 +19,5 @@ export type TaskRequest = {
   time: string;
   participiants: string[];
 }
+
+export type TaskDeleteRequest = { id: number }

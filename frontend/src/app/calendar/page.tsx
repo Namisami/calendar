@@ -60,6 +60,11 @@ export default function MainPage() {
           }}
           pageSizeOptions={[10]}
           disableRowSelectionOnClick
+          sx={{
+            "& .MuiDataGrid-cell": {
+              padding: 0
+            }
+          }}
         />
       </Stack>
     </Box>

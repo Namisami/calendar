@@ -59,6 +59,7 @@ class TaskViewSet(viewsets.ModelViewSet):
     @action(methods=["get"], detail=False)
     def schedule(self, request, *args, **kwargs):
         grouped = {}
+        username = self.request.query_params.get('username')
         for task in self.get_queryset():
             time_key = task.time.strftime("%H:%M")
             
@@ -66,6 +67,7 @@ class TaskViewSet(viewsets.ModelViewSet):
                 grouped[time_key] = {
                     'id': task.id,
                     'time': task.time.strftime("%H:%M"),
+                    'username': username,
                     **{day: None for day in DAYS.values()}
                 }
             

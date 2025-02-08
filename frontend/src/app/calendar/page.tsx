@@ -5,24 +5,26 @@ import Select from "@/components/Select";
 import { Box, Button, FormControl, Stack, Typography } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { columns } from "./grid";
-import { CalendarRow } from "@/api/base.types";
+import { useAppSelector, useAppDispatch } from "@/store/hooks";
+import { setTasks } from "@/store/slices/taskSlice";
 
 export default function MainPage() {
   const { data, isLoading: isUsersLoading } = useGetUsersQuery();
   const [fetchTasks, {isLoading} ] = useLazyGetTasksByUsernameQuery();
 
-  const [tasks, setTasks] = useState<CalendarRow[]>([]);
+  const tasks = useAppSelector((state) => state.task.tasks);
+  const dispatch = useAppDispatch();
 
   const usersOptions = useMemo(() => data?.map((item) => item.username) ?? [], [data])
 
   const handleSelectChange = async (e: React.SyntheticEvent, value: string | null) => {
     if (value) {
       const { data } = await fetchTasks({ username: value });
-      setTasks(data ?? []);
+      dispatch(setTasks(data ?? []));
     } else {
-      setTasks([]);
+      dispatch(setTasks([]));
     }
   };
 

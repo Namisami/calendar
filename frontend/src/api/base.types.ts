@@ -6,6 +6,7 @@ export type User = {
 export type CalendarRow = {
   id: number;
   time: string;
+  username: string;
   monday?: string | null;
   tuesday?: string | null;
   wednesday?: string | null;
